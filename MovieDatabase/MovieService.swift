@@ -8,7 +8,7 @@
 import Foundation
 
 class MovieService {
-    static let apiKey = "YOUR_API_KEY"
+    static let apiKey = "2cdfeeec25db57e5f628e99329b34655"
     static let baseURL = "https://api.themoviedb.org/3"
     
     static func fetchMovies(completion: @escaping ([Movie]?) -> Void) {
@@ -17,9 +17,15 @@ class MovieService {
             return
         }
 
-        URLSession.shared.dataTask(with: url) { (data, _, error) in
+        URLSession.shared.dataTask(with: url) { (data, response, error) in
             if let error = error {
                 print("Error fetching movies: \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+
+            guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+                print("Invalid response or server error.")
                 completion(nil)
                 return
             }
@@ -34,8 +40,8 @@ class MovieService {
                 let decoder = JSONDecoder()
                 let result = try decoder.decode(MovieResults.self, from: data)
                 completion(result.results)
-            } catch {
-                print("Error decoding JSON: \(error.localizedDescription)")
+            } catch let decodingError {
+                print("Error decoding JSON: \(decodingError)")
                 completion(nil)
             }
         }.resume()

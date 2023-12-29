@@ -12,6 +12,27 @@ struct MovieDetailView: View {
 
     var body: some View {
         VStack {
+            if let posterURL = movie.posterURL {
+                // Display poster image
+                AsyncImage(url: posterURL) { phase in
+                    switch phase {
+                    case .empty:
+                        ProgressView()
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                    case .failure:
+                        Image(systemName: "photo") // Placeholder image for failure
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                    @unknown default:
+                        fatalError("Unhandled AsyncImage phase")
+                    }
+                }
+                .frame(height: 200) // Adjust the height as needed
+            }
+
             Text(movie.title)
                 .font(.title)
             Text("Release Date: \(movie.releaseDate)")
